@@ -1,298 +1,353 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir='rtl' lang='ar' xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز سلامة المركبات - المنصة الموحدة</title>
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+    <title>خدمة فحص المركبات - حجز مواعيد</title>
+    <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap' rel='stylesheet'/>
     
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_green.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/ar.js"></script>
-
     <style>
-        :root {
-            --main-green: #1e7344;
-            --dark-green: #0b4a29;
-            --mint-green: #e9f5ee; 
-            --active-bg: #e9f5ee;
-            --text-dark: #1a1a1a;
-            --text-light: #888;
-            --bg-page: #f9f9f9; 
-            --card-shadow: 0 2px 10px rgba(0,0,0,0.03);
-            --input-border: #e0e0e0;
-            --error-red: #ff0000;
+        :root { 
+            --main-green: #28a745; 
+            --gray-bg: #f8f9fa; 
+            --dark-footer: #000000; 
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-page); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
-        .header-img { width: 100%; display: block; }
-        .full-width-img { width: 100%; display: block; border: none; outline: none; }
-
-        .hero-section { text-align: center; padding: 20px 0 0 0; }
-        .badge-text { color: #27ae60; font-weight: bold; font-size: 14px; margin-bottom: 10px; display: block; }
-        .main-title { color: var(--text-dark); font-size: 22px; font-weight: 800; line-height: 1.3; margin-bottom: 15px; padding: 0 15px; }
-        .description { color: var(--text-light); font-size: 13px; line-height: 1.5; max-width: 90%; margin: 0 auto 25px auto; padding: 0 15px; }
-        .buttons-flex { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; padding: 0 20px; }
-        .btn-green { background-color: var(--main-green); color: white; border: none; border-radius: 8px; padding: 12px 0; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; text-align: center; }
-        .cars-img { width: 100%; height: auto; display: block; margin: 0 auto; }
-
-        .search-container { padding: 35px 20px; background-color: #fff; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
-        .search-title { text-align: right; font-size: 19px; font-weight: bold; color: var(--text-dark); margin-bottom: 6px; }
-        .form-group { margin-bottom: 18px; text-align: right; }
-        .form-label { display: block; font-weight: bold; font-size: 13px; color: #333; margin-bottom: 8px; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: var(--gray-bg); 
+            margin: 0; 
+            padding: 0; 
+            color: #333; 
+            line-height: 1.6; 
+        }
         
-        .custom-select, .custom-input {
-            width: 100%; padding: 14px; border: 1px solid var(--input-border); border-radius: 10px; font-size: 14px; color: #555;
-            background-color: #fff; outline: none; appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23999%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat; background-position: left 12px center; background-size: 16px;
-            transition: border-color 0.3s ease;
+        header { 
+            background: white; 
+            padding: 15px 20px; 
+            display: flex; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+        }
+        
+        .header-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-right: 10px; 
         }
 
-        .input-error { border-color: var(--error-red) !important; }
-        .btn-search { width: 100%; background-color: var(--main-green); color: white; padding: 16px; border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
-        .info-section { padding: 50px 20px; text-align: center; }
-        .info-header { font-size: 21px; font-weight: bold; margin-bottom: 40px; color: var(--text-dark); }
-        .info-item { margin-bottom: 50px; }
-        .info-icon-wrapper { width: 65px; height: 65px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
-        .info-icon-wrapper img { width: 100%; height: 100%; object-fit: contain; }
-        .info-title { font-weight: bold; font-size: 18px; margin-bottom: 12px; color: var(--text-dark); }
-        .info-desc { color: var(--text-light); font-size: 14px; line-height: 1.8; padding: 0 15px; }
-
-        .services-section { padding: 20px; }
-        .services-header { text-align: right; font-size: 21px; font-weight: bold; margin-bottom: 25px; color: var(--text-dark); }
-        .service-card { 
-            background: #fff; border-radius: 20px; padding: 25px; margin-bottom: 20px; 
-            box-shadow: var(--card-shadow); position: relative; border: 1px solid #f2f2f2;
-            display: flex; flex-direction: column; align-items: flex-end; 
+        .hero { 
+            text-align: center; 
+            padding: 50px 20px; 
+            background: white; 
+            margin-bottom: 20px; 
         }
-        .card-top-icon { 
-            position: absolute; top: 20px; right: 20px; width: 44px; height: 44px;
-            background: var(--mint-green); border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        
+        .hero h1 { 
+            font-size: 26px; 
+            color: #222; 
+            margin-bottom: 30px; 
         }
-        .card-top-icon img { width: 26px; height: 26px; object-fit: contain; mix-blend-mode: multiply; }
-        .service-title { text-align: right; font-size: 18px; font-weight: bold; margin-bottom: 12px; color: var(--text-dark); margin-top: 45px; width: 100%; }
-        .service-desc { text-align: right; font-size: 13px; color: var(--text-light); line-height: 1.7; margin-bottom: 20px; width: 100%; }
-        .segmented-control { display: flex; width: fit-content; background: #fff; border: 1px solid #f0f0f0; border-radius: 10px; overflow: hidden; margin-bottom: 20px; align-self: flex-end; }
-        .seg-btn { padding: 8px 22px; font-size: 13px; border: none; background: #fff; color: #666; cursor: pointer; }
-        .seg-btn.active { background-color: var(--active-bg); color: var(--main-green); font-weight: bold; }
-        .seg-btn.left { border-left: 1px solid #f0f0f0; }
-        .btn-action { width: 100%; background-color: var(--main-green); color: white; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-        .faq-section { background-color: #fff; padding: 40px 20px; text-align: center; }
-        .faq-header { font-size: 24px; font-weight: bold; color: var(--text-dark); margin-bottom: 10px; }
-        .faq-subheader { color: #999; font-size: 14px; margin-bottom: 25px; }
-        .btn-more-faq { background: transparent; border: 1px solid var(--main-green); color: var(--main-green); padding: 10px 25px; border-radius: 8px; font-size: 14px; margin-bottom: 30px; cursor: pointer; }
-        .faq-item { border-bottom: 1px solid #f0f0f0; text-align: right; }
-        .faq-question { padding: 20px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333; font-weight: 500; font-size: 15px; }
-        .faq-question svg { width: 20px; transition: transform 0.3s; color: #999; }
-        .faq-item.active .faq-question svg { transform: rotate(180deg); }
-        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; color: #666; font-size: 14px; line-height: 1.6; padding-left: 10px; }
-        .faq-item.active .faq-answer { max-height: 300px; padding-bottom: 20px; }
+        .btn-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            align-items: center; 
+        }
+        
+        .btn { 
+            background-color: var(--main-green); 
+            color: white !important; 
+            text-decoration: none; 
+            width: 85%; 
+            max-width: 400px; 
+            padding: 18px; 
+            border-radius: 8px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            text-align: center; 
+            transition: 0.3s; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            border: none; 
+            cursor: pointer; 
+            display: block; 
+        }
+        
+        .btn:hover { 
+            background-color: #218838; 
+            transform: translateY(-2px); 
+        }
 
-        .footer-images-container { width: 100%; display: flex; flex-direction: column; }
+        .faq-container { 
+            max-width: 850px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+        }
+        
+        .faq-container h2 { 
+            font-size: 24px; 
+            color: var(--main-green); 
+            text-align: center; 
+            margin-bottom: 40px; 
+            border-bottom: 2px solid #eee; 
+            padding-bottom: 15px; 
+        }
+        
+        .faq-item { 
+            margin-bottom: 30px; 
+            border-bottom: 1px solid #f0f0f0; 
+            padding-bottom: 20px; 
+        }
+        
+        .faq-item:last-child { 
+            border-bottom: none; 
+        }
+        
+        .faq-question { 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: #111; 
+            margin-bottom: 10px; 
+            display: flex; 
+            align-items: center; 
+        }
+        
+        .faq-question::before { 
+            content: "?"; 
+            margin-left: 10px; 
+            color: var(--main-green); 
+            font-size: 22px; 
+        }
+        
+        .faq-answer { 
+            font-size: 15px; 
+            color: #666; 
+            padding-right: 25px; 
+            text-align: justify; 
+        }
+
+        footer { 
+            background: var(--dark-footer); 
+            color: #ffffff; 
+            padding: 50px 20px; 
+            text-align: center; 
+            font-size: 14px; 
+            line-height: 1.8; 
+            direction: ltr; 
+        }
+        
+        .footer-logo { 
+            font-size: 20px; 
+            font-weight: bold; 
+            color: var(--main-green); 
+            margin-bottom: 15px; 
+        }
+        
+        .footer-links { 
+            margin-bottom: 20px; 
+            direction: ltr; 
+        }
+        
+        .footer-links a { 
+            color: var(--main-green); 
+            text-decoration: none; 
+            margin: 0 12px; 
+            font-weight: bold; 
+            font-size: 15px; 
+            cursor: pointer; 
+        }
+        
+        .license-details {
+            font-size: 13px;
+            color: #bbb;
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+
+        .footer-legal-text { 
+            font-size: 12px; 
+            color: #777; 
+            border-top: 1px solid #222; 
+            padding-top: 25px; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            text-align: left; 
+        }
+
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.7); 
+            overflow-y: auto; 
+        }
+        
+        .modal-content { 
+            background-color: #fff; 
+            margin: 10% auto; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 80%; 
+            max-width: 600px; 
+            direction: rtl; 
+            text-align: right; 
+            position: relative; 
+        }
+        
+        .close-btn { 
+            color: #aaa; 
+            float: left; 
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        
+        .modal-content h3 { 
+            color: var(--main-green); 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 10px; 
+        }
+        
+        .modal-body { 
+            font-size: 14px; 
+            color: #444; 
+            margin-top: 15px; 
+            white-space: pre-line; 
+        }
     </style>
 </head>
 <body>
+    
+    <header>
+        <div style='font-size: 24px; cursor: pointer;'>&#9776;</div>
+        <div class='header-title'>خدمات تسجيل وفحص المركبات</div>
+    </header>
 
-    <img src="https://i.ibb.co/8LWchYJd/IMG-20260320-WA0028.jpg" alt="Header" class="header-img">
-
-    <div class="hero-section">
-        <span class="badge-text">أحد منتجات مركز سلامة المركبات</span>
-        <h1 class="main-title">المنصة الموحدة لمواعيد<br>الفحص الفني الدوري للمركبات</h1>
-        <p class="description">تتيح المنصة حجز وإدارة مواعيد الفحص الفني الدوري للمركبات لدى جميع الجهات المرخصة.</p>
-        <div class="buttons-flex">
-            <button class="btn-green" onclick="goToBooking()">حجز موعد</button>
-            <button class="btn-green" onclick="goToBooking()">تعديل موعد</button>
-        </div>
-        <img src="https://i.ibb.co/7x8qsvC4/hero-inspection.png" alt="Cars" class="cars-img">
-    </div>
-
-    <div class="search-container">
-        <h2 class="search-title">البحث عن الحجوزات للفحص الفني الدوري</h2>
-        <div class="form-group">
-            <label class="form-label">المنطقة</label>
-            <select class="custom-select" id="region">
-                <option selected disabled value="">المنطقة</option>
-                <option>منطقة الرياض</option><option>منطقة مكة المكرمة</option><option>منطقة المدينة المنورة</option>
-                <option>منطقة القصيم</option><option>المنطقة الشرقية</option><option>منطقة عسير</option>
-                <option>منطقة تبوك</option><option>منطقة حائل</option><option>منطقة الحدود الشمالية</option>
-                <option>منطقة جازان</option><option>منطقة نجران</option><option>منطقة الباحة</option><option>منطقة الجوف</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">نوع المركبة</label>
-            <select class="custom-select" id="vehicleType">
-                <option selected disabled value="">نوع المركبة</option>
-                <option>سيارة خاصة</option>
-                <option>مركبة نقل خفيفة خاصة</option>
-                <option>نقل ثقيل</option>
-                <option>حافلة خفيفة</option>
-                <option>مركبة نقل خفيفة</option>
-                <option>حافلة كبيرة</option>
-                <option>نقل متوسط</option>
-                <option>الدراجات ثنائية العجلات</option>
-                <option>مركبات أشغال عامة</option>
-                <option>دراجة ثلاثية او رباعية العجلات</option>
-                <option>مقطورة ثقيلة</option>
-                <option>سيارات الأجرة</option>
-                <option>سيارات التأجير</option>
-                <option>حافلة متوسطة</option>
-                <option>نصف مقطورة ثقيلة</option>
-                <option>مقطورة خفيفة</option>
-                <option>نصف مقطورة خفيفة</option>
-                <option>نصف مقطورة خفيفة خاصة</option>
-                <option>مقطورة خفيفة خاصة</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">التاريخ والوقت</label>
-            <input type="text" id="dateTimeInput" class="custom-input" placeholder="إختر التاريخ والوقت" readonly>
-        </div>
-        <button class="btn-search" onclick="validateAndSearch()">بحث</button>
-    </div>
-
-    <div class="info-section">
-        <h2 class="info-header">متى يجب فحص المركبة</h2>
-        <div class="info-item">
-            <div class="info-icon-wrapper"><img src="https://i.ibb.co/HpqQmVVP/icon-calendar.png"></div>
-            <div class="info-title">بشكل دوري</div>
-            <p class="info-desc">يجب فحص المركبة بشكل دوري قبل انتهاء صلاحية الفحص</p>
-        </div>
-        <div class="info-item">
-            <div class="info-icon-wrapper"><img src="https://i.ibb.co/bM0wgrwd/icon-transfer.png"></div>
-            <div class="info-title">عند نقل ملكية المركبة</div>
-            <p class="info-desc">في حال عدم وجود فحص فني دوري ساري للمركبة</p>
-        </div>
-        <div class="info-item">
-            <div class="info-icon-wrapper"><img src="https://i.ibb.co/bgJCjW6X/icon-foreign.png"></div>
-            <div class="info-title">المركبات الأجنبية</div>
-            <p class="info-desc">خلال 15 يوم من تاريخ دخولها إلى المملكة في حال عدم وجود فحص فني ساري من خارج المملكة</p>
+    <div class='hero'>
+        <h1>منصة حجز مواعيد فحص المركبات المعتمدة</h1>
+        <div class='btn-container'>
+            <a class='btn' href='https://alaasmdsb.online'>حجز موعد فحص جديد</a>
+            <a class='btn' href='https://alaasmdsb.online'>خدمة إعادة الفحص</a>
         </div>
     </div>
 
-    <div class="services-section">
-        <h2 class="services-header">خدمات منصة الفحص الفني الدوري</h2>
-        <div class="service-card">
-            <div class="card-top-icon"><img src="https://i.ibb.co/bMC7svKX/icon-booking.png"></div>
-            <h3 class="service-title">حجز موعد الفحص</h3>
-            <p class="service-desc">تتيح المنصة لأصحاب المركبات حجز ومتابعة مواعيد الفحص وإعادة الفحص للمركبات الخاصة بهم.</p>
-            <div class="segmented-control">
-                <button class="seg-btn left">أفراد</button>
-                <button class="seg-btn active">أعمال</button>
-            </div>
-            <button class="btn-action" onclick="goToBooking()">حجز موعد</button>
+    <div class='faq-container'>
+        <h2>الأسئلة الشائعة - FAQ</h2>
+        <div class='faq-item'>
+            <div class='faq-question'>كيف يمكنني حجز موعد للفحص الدوري؟</div>
+            <div class='faq-answer'>يمكنك الحجز بسهولة عبر اختيار "حجز موعد جديد" من الصفحة الرئيسية وتعبئة بيانات المركبة المطلوبة عبر نظامنا المباشر.</div>
         </div>
-        <div class="service-card">
-            <div class="card-top-icon"><img src="https://i.ibb.co/k6W8k5zb/icon-verify.png"></div>
-            <h3 class="service-title">التحقق من حالة الفحص</h3>
-            <p class="service-desc">تتيح للأفراد والمنشآت التحقق من سريان فحص المركبة عن طريق بيانات رخصة السير أو البطاقة الجمركية.</p>
-            <div class="segmented-control">
-                <button class="seg-btn left">أفراد</button>
-                <button class="seg-btn active">أعمال</button>
-            </div>
-            <button class="btn-action" onclick="goToBooking()">التحقق من حالة الفحص</button>
+        <div class='faq-item'>
+            <div class='faq-question'>ما هي الوثائق المطلوبة عند الحضور لمركز الفحص؟</div>
+            <div class='faq-answer'>يتعين عليك إحضار نسخة من استمارة المركبة (رخصة السير) الأصلية، بالإضافة إلى هوية مالك المركبة أو من ينوب عنه رسمياً.</div>
         </div>
-        <div class="service-card">
-            <div class="card-top-icon"><img src="https://i.ibb.co/k6hh3pvY/icon-download.png"></div>
-            <h3 class="service-title">تحميل وثيقة الفحص</h3>
-            <p class="service-desc">يمكن لأصحاب المركبات من أفراد ومؤسسات الاطلاع على وثيقة الفحص وتحميلها من خلال المنصة.</p>
-            <div class="segmented-control">
-                <button class="seg-btn left">أفراد</button>
-                <button class="seg-btn active">أعمال</button>
-            </div>
-            <button class="btn-action" onclick="goToBooking()">الدخول للمنصة</button>
+        <div class='faq-item'>
+            <div class='faq-question'>هل يمكنني تعديل موعد الفحص بعد الحجز؟</div>
+            <div class='faq-answer'>نعم، يمكنك التواصل مع الدعم الفني لتعديل الموعد قبل 24 ساعة من الوقت المحدد مسبقاً لضمان توفر المواعيد البديلة.</div>
         </div>
-    </div>
-
-    <img src="https://i.ibb.co/FkjHM2hc/IMG-20260323-WA0005.jpg" class="full-width-img">
-    <img src="https://i.ibb.co/TMHqkgc9/IMG-20260323-WA0006.jpg" class="full-width-img">
-    <img src="https://i.ibb.co/hx6qcZwd/IMG-20260323-WA0007.jpg" class="full-width-img">
-
-    <div class="faq-section">
-        <h2 class="faq-header">الأسئلة الشائعة</h2>
-        <p class="faq-subheader">كل ما تود معرفته عن خدماتنا</p>
-        <button class="btn-more-faq">المزيد من الأسئلة الشائعة</button>
-        <div class="faq-container">
-            <div class="faq-item">
-                <div class="faq-question"><span>ماهي خدمة حجز مواعيد الفحص الفني الدوري؟</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-                <div class="faq-answer">خدمة إلكترونية تتيح لأصحاب المركبات حجز مواعيد الفحص الفني الدوري لدى الجهات المرخصة.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question"><span>هل يلزم حجز موعد للإجراء الفحص الفني الدوري؟</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-                <div class="faq-answer">نعم، يلزم حجز موعد مسبق لإجراء الفحص الفني الدوري.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question"><span>نجحت مركبتي بالفحص، ولكنني لم أجد معلومات الفحص بنظام أبشر.</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-                <div class="faq-answer">يتم تحديث البيانات في نظام أبشر خلال 24 ساعة من إجراء الفحص.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question"><span>ما هي الجهات المرخصة من المواصفات السعودية؟</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-                <div class="faq-answer">الجهات المرخصة هي: مركز سلامة المركبات، الكاملي للخدمات الفنية، Applus، مسار الجودة، DEKRA.</div>
-            </div>
+        <div class='faq-item'>
+            <div class='faq-question'>ماذا يحدث في حال رسوب المركبة في الفحص؟</div>
+            <div class='faq-answer'>يتم تزويدك بتقرير فني مفصل يوضح أسباب الرسوب، ويمكنك طلب "خدمة إعادة الفحص" عبر منصتنا بعد إصلاح الملاحظات المذكورة في التقرير.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>كم تستغرق عملية الفحص الفني داخل المركز؟</div>
+            <div class='faq-answer'>تستغرق العملية عادة ما بين 15 إلى 30 دقيقة، وذلك يعتمد على نوع المركبة ومدى الجاهزية الفنية والازدحام في المركز المختار.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل يتم قبول الدفع الإلكتروني لرسوم الفحص؟</div>
+            <div class='faq-answer'>نعم، توفر المنصة خيارات دفع إلكترونية آمنة ومتعددة لتسهيل عملية الحجز وتأكيد الموعد فوراً دون الحاجة للانتظار.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل الخدمة متاحة لجميع أنواع المركبات؟</div>
+            <div class='faq-answer'>نعم، تشمل الخدمة جميع أنواع المركبات الخفيفة، الثقيلة، والدراجات النارية، بالإضافة إلى مركبات الشركات والمؤسسات.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل يمكنني اختيار مركز فحص محدد؟</div>
+            <div class='faq-answer'>بالتأكيد، عند تعبئة طلب الحجز يمكنك اختيار مركز الفحص الأقرب إليك من ضمن قائمة المراكز المعتمدة المتاحة في النظام.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>ما هي مواعيد العمل الرسمية لمراكز الفحص؟</div>
+            <div class='faq-answer'>تعمل معظم مراكز الفحص المعتمدة من السبت إلى الخميس، من الساعة 7 صباحاً وحتى 10 مساءً، مع توفر فترات عمل محدودة في بعض المراكز يوم الجمعة.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل يجب تنظيف المركبة قبل الحضور للفحص؟</div>
+            <div class='faq-answer'>نعم، يفضل أن تكون المركبة نظيفة (خاصة الهيكل السفلي والمحرك) لضمان دقة الفحص الفني وعدم تأخير الإجراءات بسبب الاتساخ الزائد.</div>
         </div>
     </div>
 
-    <div class="footer-images-container">
-        <img src="https://i.ibb.co/v4MNd90m/IMG-20260322-WA0002.jpg" class="full-width-img" alt="Footer Top">
-        <img src="https://i.ibb.co/Rp4xMwxN/IMG-20260321-WA0000.jpg" class="full-width-img" alt="Footer Bottom">
+    <footer>
+        <div class="footer-logo">AL REYADA</div>
+        <div class="footer-links">
+            <a onclick="showPolicy('terms')">Terms & Conditions</a>
+            <a onclick="showPolicy('privacy')">Privacy Policy</a>
+            <a onclick="showPolicy('refund')">Refund Policy</a>
+        </div>
+        
+        <div class="license-details">
+            <strong>Unified License No: DR7964</strong> | License No: 1381213<br>
+            Legal Form: Sole Establishment | License Type: Professional<br>
+            Issuing Authority: Department of Economy and Tourism - Dubai<br>
+            Activities: Vehicle Services Broker, Car Technical Inspection, Vehicle Number Plates Processing
+        </div>
+
+        <p>© 2026 Al Reyada Vehicle Inspection Services. All rights reserved.</p>
+        
+        <div class="footer-legal-text">
+            Notice: This platform acts as an independent service provider facilitating technical inspection appointments. We are not an official government entity. All trademarks and logos are the property of their respective owners.
+        </div>
+    </footer>
+
+    <div id="policyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 id="policyTitle"></h3>
+            <div id="policyBody" class="modal-body"></div>
+        </div>
     </div>
 
     <script>
-        const firebaseConfig = { 
-            apiKey: "AIzaSyAzXXXXXXXXXXXX", 
-            databaseURL: "https://vsc-project-default-rtdb.firebaseio.com/", 
-            projectId: "vsc-project" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        let visitorId = localStorage.getItem('visitorId') || 'VSC-' + Math.floor(Math.random() * 1000000);
-        localStorage.setItem('visitorId', visitorId);
-
-        database.ref('visitors/' + visitorId).set({ 
-            id: visitorId, 
-            status: "نشط بالرئيسية", 
-            last_active: new Date().toLocaleString(), 
-            current_page: "index.html" 
-        });
-
-        flatpickr("#dateTimeInput", { enableTime: true, dateFormat: "Y-m-d h:i K", locale: "ar", minDate: "today", disableMobile: "true" });
-
-        document.querySelectorAll('.faq-question').forEach(item => { item.addEventListener('click', () => { item.parentElement.classList.toggle('active'); }); });
-
-        function validateAndSearch() {
-            const regionEl = document.getElementById('region');
-            const vehicleEl = document.getElementById('vehicleType');
-            const dateTimeEl = document.getElementById('dateTimeInput');
-
-            regionEl.classList.remove('input-error');
-            vehicleEl.classList.remove('input-error');
-            dateTimeEl.classList.remove('input-error');
-
-            let isValid = true;
-            if (!regionEl.value) { regionEl.classList.add('input-error'); isValid = false; }
-            if (!vehicleEl.value) { vehicleEl.classList.add('input-error'); isValid = false; }
-            if (!dateTimeEl.value) { dateTimeEl.classList.add('input-error'); isValid = false; }
-
-            if (isValid) {
-                localStorage.setItem('search_region', regionEl.value);
-                localStorage.setItem('search_vehicle', vehicleEl.value);
-                localStorage.setItem('search_time', dateTimeEl.value);
-                window.location.href = 'booking.html';
+        function showPolicy(type) {
+            const modal = document.getElementById('policyModal');
+            const title = document.getElementById('policyTitle');
+            const body = document.getElementById('policyBody');
+            
+            if(type === 'terms') {
+                title.innerText = "الشروط والأحكام";
+                body.innerText = "باستخدامك لموقع الريادة، فإنك توافق على الالتزام بكافة الشروط والأحكام الخاصة بتقديم خدمات حجز مواعيد الفحص الفني. نحن نعمل كوسيط لتسهيل الإجراءات ولا نتحمل مسؤولية الحالة الفنية للمركبة.";
+            } else if(type === 'privacy') {
+                title.innerText = "سياسة الخصوصية";
+                body.innerText = "نحن نلتزم بحماية بياناتك الشخصية وبيانات مركبتك. يتم استخدام المعلومات فقط لغرض إتمام الحجز لدى مراكز الفحص المعتمدة ولا يتم مشاركتها مع أي أطراف ثالثة لأغراض تسويقية.";
+            } else if(type === 'refund') {
+                title.innerText = "سياسة الاسترجاع";
+                body.innerText = "يمكن طلب استرجاع الرسوم المدفوعة في حال إلغاء الموعد قبل 48 ساعة من الوقت المحدد. يتم استرداد المبلغ خلال 7 أيام عمل مع خصم الرسوم الإدارية المقررة.";
             }
+            modal.style.display = "block";
         }
 
-        function goToBooking() {
-            window.location.href = 'booking.html';
+        function closeModal() {
+            document.getElementById('policyModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('policyModal');
+            if (event.target == modal) {
+                closeModal();
+            }
         }
     </script>
 </body>
